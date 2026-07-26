@@ -88,9 +88,60 @@ def list_user_repositories(username: str, limit: int = 10) -> list:
         })
 
     return repositories
+@mcp.tool
+def list_branches(owner: str, repo: str) -> list:
+    """List branches in a GitHub repository."""
 
+    data = github_request(f"/repos/{owner}/{repo}/branches")
 
+    branches = []
 
+    for branch in data:
+        branches.append({
+            "name": branch["name"],
+            "protected": branch["protected"]
+        })
+
+    return branches
+@mcp.tool
+def list_commits(owner: str, repo: str, limit: int = 10) -> list:
+    """List recent commits for a GitHub repository."""
+
+    data = github_request(f"/repos/{owner}/{repo}/commits")
+
+    commits = []
+
+    for commit in data[:limit]:
+        commits.append({
+            "sha": commit["sha"][:7],
+            "message": commit["commit"]["message"],
+            "author": commit["commit"]["author"]["name"],
+            "date": commit["commit"]["author"]["date"]
+        })
+
+    return commits
+@mcp.tool
+def list_issues(owner: str, repo: str, limit: int = 10) -> list:
+    """List open issues for a GitHub repository."""
+
+    data = github_request(f"/repos/{owner}/{repo}/issues")
+
+    issues = []
+
+    for issue in data[:limit]:
+        # Skip pull requests (GitHub returns PRs in the issues endpoint)
+        if "pull_request" in issue:
+            continue
+
+        issues.append({
+            "number": issue["number"],
+            "title": issue["title"],
+            "state": issue["state"],
+            "author": issue["user"]["login"],
+            "url": issue["html_url"]
+        })
+
+    return issues
 
 if __name__ == "__main__":
     mcp.run()
