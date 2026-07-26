@@ -53,7 +53,41 @@ def search_repository(query: str, limit: int = 5) -> list:
         })
     return repositories
 
+@mcp.tool
+def get_user(username: str) -> dict:
+    """Get details for a GitHub user."""
 
+    data = github_request(f"/users/{username}")
+
+    return {
+        "username": data["login"],
+        "name": data["name"],
+        "bio": data["bio"],
+        "public_repositories": data["public_repos"],
+        "followers": data["followers"],
+        "following": data["following"],
+        "profile_url": data["html_url"]
+    }
+
+@mcp.tool
+def list_user_repositories(username: str, limit: int = 10) -> list:
+    """List public repositories for a GitHub user."""
+
+    data = github_request(f"/users/{username}/repos")
+
+    repositories = []
+
+    for repo in data[:limit]:
+        repositories.append({
+            "name": repo["name"],
+            "description": repo["description"],
+            "language": repo["language"],
+            "stars": repo["stargazers_count"],
+            "forks": repo["forks_count"],
+            "url": repo["html_url"]
+        })
+
+    return repositories
 
 
 
