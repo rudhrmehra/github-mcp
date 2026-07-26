@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 import requests
 import os
 
-
 load_dotenv()
 mcp = FastMCP("GitHub MCP")
+
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 if not GITHUB_TOKEN:
     raise ValueError("GITHUB_TOKEN not found. Please create a .env file.")
@@ -13,5 +13,35 @@ if not GITHUB_TOKEN:
 def github_request(endpoint: str):
     url = f"https://api.github.com{endpoint}"
 
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+@mcp.tool
+def get_repository(owner: str, repo: str) -> dict:
+    """Get details for a Github repository."""
+    data = github_request(f"/repos/{owner}/{repo}")
+    return{
+        "name": data["name"], 
+        "full_name": data["full_name"],
+        "description": data["description"],
+        "stars": data["stargazers_count"],
+        "forks": data["forks_count"],
+        "open_issues": data["open_issues_count"],
+        "language": data["language"],
+        "default_branch": data["default_branch"],
+        "html_url": data["html_url"],
+
+    }
+
+
+
+
+
 if __name__ == "__main__":
     mcp.run()
+
