@@ -120,6 +120,7 @@ def list_commits(owner: str, repo: str, limit: int = 10) -> list:
         })
 
     return commits
+
 @mcp.tool
 def list_issues(owner: str, repo: str, limit: int = 10) -> list:
     """List open issues for a GitHub repository."""
@@ -142,6 +143,25 @@ def list_issues(owner: str, repo: str, limit: int = 10) -> list:
         })
 
     return issues
+
+@mcp.tool
+def list_pull_requests(owner: str, repo: str, limit: int = 10) -> list:
+    """List open pull requests for a GitHub repository."""
+
+    data = github_request(f"/repos/{owner}/{repo}/pulls")
+
+    pull_requests = []
+
+    for pr in data[:limit]:
+        pull_requests.append({
+            "number": pr["number"],
+            "title": pr["title"],
+            "state": pr["state"],
+            "author": pr["user"]["login"],
+            "url": pr["html_url"]
+        })
+
+    return pull_requests
 
 if __name__ == "__main__":
     mcp.run()
