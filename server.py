@@ -38,6 +38,22 @@ def get_repository(owner: str, repo: str) -> dict:
 
     }
 
+@mcp.tool 
+def search_repository(query: str, limit: int = 5) -> list:
+    """Search GitHub repositiories."""
+    data = github_request(f"/search/repositories?q={query}")
+    repositories = []
+    for repo in data["items"][:limit]:
+        repositories.append({
+            "name": repo["full_name"],
+            "description": repo["description"],
+            "stars": repo["stargazers_count"],
+            "language": repo["language"],
+            "url": repo["html_url"]
+        })
+    return repositories
+
+
 
 
 
